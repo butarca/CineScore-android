@@ -2,6 +2,7 @@ package com.example.cinescore_android;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -10,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest; // Changed to JsonObjectRequest
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -29,9 +30,13 @@ public class MainActivity extends AppCompatActivity {
     private List<Movie> movieList;
     private RequestQueue queue;
 
-    // Endpoints
-    private static final String BASE_URL = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/top-rated?page=1";
-    private static final String TRENDING_URL = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/popular?page=1";
+    // Pagination Variables
+    private int currentPage = 1;
+    private String currentCategory = "top-rated"; // Default category
+    private TextView tvPageIndicator;
+
+    // Base URL components
+    private static final String API_BASE = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/";
     private static final String API_KEY = "ChangeMeApiKey123!";
 
     @Override
@@ -45,64 +50,85 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnAll = findViewById(R.id.btnAllMovies);
         Button btnTrending = findViewById(R.id.btnTrending);
+        Button btnPrev = findViewById(R.id.btnPrev); // You'll need to add these to XML
+        Button btnNext = findViewById(R.id.btnNext);
+        tvPageIndicator = findViewById(R.id.tvPageIndicator);
 
         // 2. Initialize Data Components
         movieList = new ArrayList<>();
         adapter = new MovieAdapter(this, movieList);
         recyclerView.setAdapter(adapter);
-
         queue = Volley.newRequestQueue(this);
 
         // 3. Initial Load
-        fetchData(BASE_URL);
+        fetchData();
 
-        // 4. Button Listeners
-        btnAll.setOnClickListener(v -> fetchData(BASE_URL));
-        btnTrending.setOnClickListener(v -> fetchData(TRENDING_URL));
+        // 4. Category Listeners
+        btnAll.setOnClickListener(v -> {
+            currentCategory = "top-rated";
+            currentPage = 1;
+            fetchData();
+        });
+
+        btnTrending.setOnClickListener(v -> {
+            currentCategory = "popular";
+            currentPage = 1;
+            fetchData();
+        });
+
+        // 5. Pagination Listeners
+        btnNext.setOnClickListener(v -> {
+            currentPage++;
+            fetchData();
+        });
+
+        btnPrev.setOnClickListener(v -> {
+            if (currentPage > 1) {
+                currentPage--;
+                fetchData();
+            } else {
+                Toast.makeText(this, "You are on the first page", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void fetchData(String targetUrl) {
-        // Clear list and refresh UI immediately to show a "loading" state (blank screen)
+    private void fetchData() {
+        // Construct the URL dynamically based on category and page
+        String targetUrl = API_BASE + currentCategory + "?page=" + currentPage;
+
+        // Update UI indicator
+        tvPageIndicator.setText("Page: " + currentPage);
+
         movieList.clear();
         adapter.notifyDataSetChanged();
 
-        // Use JsonObjectRequest because the JSON root is now { "movies": [...] }
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
                 targetUrl,
                 null,
                 response -> {
                     try {
-                        // Access the "movies" array inside the root object
                         JSONArray moviesArray = response.getJSONArray("movies");
-
                         for (int i = 0; i < moviesArray.length(); i++) {
                             JSONObject movieObj = moviesArray.getJSONObject(i);
-
-                            // Parse individual movie data
-                            // Using optString/optInt is safer if fields are sometimes missing
-                            int id = movieObj.optInt("id", -1);
-                            String title = movieObj.optString("title", "Unknown Title");
-                            String genre = movieObj.optString("genre", "N/A");
-                            int year = movieObj.optInt("year", 0);
-                            String description = movieObj.optString("description", "No description available.");
-                            String posterUrl = movieObj.optString("posterUrl", "");
-
-                            // Add to list (Ensure your Movie constructor accepts 'id' now)
-                            movieList.add(new Movie(id, title, genre, year, description, posterUrl));
+                            movieList.add(new Movie(
+                                    movieObj.optInt("id", -1),
+                                    movieObj.optString("title", "Unknown"),
+                                    movieObj.optString("genre", "N/A"),
+                                    movieObj.optInt("year", 0),
+                                    movieObj.optString("description", ""),
+                                    movieObj.optString("posterUrl", "")
+                            ));
                         }
-
-                        // Notify the adapter that data has changed
                         adapter.notifyDataSetChanged();
+                        // Scroll back to top after page change
+                        recyclerView.scrollToPosition(0);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Toast.makeText(MainActivity.this, "Data Parsing Error", Toast.LENGTH_SHORT).show();
                     }
                 },
-                error -> {
-                    Toast.makeText(MainActivity.this, "Network Error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-                }
+                error -> Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show()
         ) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -112,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        // Add to Volley Queue
         queue.add(jsonObjectRequest);
     }
 }
