@@ -15,16 +15,23 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private Context context;
     private List<Movie> movieList;
+    private OnMovieClickListener listener; // 1. Added listener variable
 
-    public MovieAdapter(Context context, List<Movie> movieList) {
+    // 2. Updated constructor to include the listener
+    public MovieAdapter(Context context, List<Movie> movieList, OnMovieClickListener listener) {
         this.context = context;
         this.movieList = movieList;
+        this.listener = listener;
+    }
+
+    // 3. Define the Interface
+    public interface OnMovieClickListener {
+        void onMovieClick(int movieId);
     }
 
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the "item_movie.xml" you created earlier
         View view = LayoutInflater.from(context).inflate(R.layout.item_movie, parent, false);
         return new MovieViewHolder(view);
     }
@@ -37,11 +44,17 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         holder.yearGenre.setText(movie.getYear() + " • " + movie.getGenre());
         holder.description.setText(movie.getDescription());
 
-        // Use Glide to load the image URL into the ImageView
         Glide.with(context)
                 .load(movie.getPosterUrl())
-                .placeholder(android.R.drawable.ic_menu_gallery) // Default icon if loading fails
+                .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.poster);
+
+        // 4. Set the click listener on the entire card (itemView)
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onMovieClick(movie.getId());
+            }
+        });
     }
 
     @Override

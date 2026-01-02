@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     private int currentPage = 1;
     private String currentCategory = "top-rated"; // Default category
     private TextView tvPageIndicator;
+
+    private Button btnPrev;
 
     // Base URL components
     private static final String API_BASE = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/";
@@ -50,13 +54,18 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnAll = findViewById(R.id.btnAllMovies);
         Button btnTrending = findViewById(R.id.btnTrending);
-        Button btnPrev = findViewById(R.id.btnPrev); // You'll need to add these to XML
+        btnPrev = findViewById(R.id.btnPrev);
         Button btnNext = findViewById(R.id.btnNext);
         tvPageIndicator = findViewById(R.id.tvPageIndicator);
 
         // 2. Initialize Data Components
         movieList = new ArrayList<>();
-        adapter = new MovieAdapter(this, movieList);
+        //adapter = new MovieAdapter(this, movieList);
+        adapter = new MovieAdapter(this, movieList, movieId -> {
+            Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+            intent.putExtra("MOVIE_ID", movieId);
+            startActivity(intent);
+        });
         recyclerView.setAdapter(adapter);
         queue = Volley.newRequestQueue(this);
 
@@ -98,6 +107,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Update UI indicator
         tvPageIndicator.setText("Page: " + currentPage);
+
+        btnPrev.setEnabled(currentPage > 1);
 
         movieList.clear();
         adapter.notifyDataSetChanged();
