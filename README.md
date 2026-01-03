@@ -22,10 +22,6 @@ curl -X 'GET' \
   -H 'ApiKey: ChangeMeApiKey123!'
 ```
 
----
-
 ## Slike
 
-![main screen] (images/img1.jpg)
-
-![movie view] (images/img2.jpg)
+![main screen](images/img1.jpg) ![movie view](images/img2.jpg)
