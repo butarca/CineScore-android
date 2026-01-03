@@ -32,14 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private List<Movie> movieList;
     private RequestQueue queue;
 
-    // Pagination Variables
     private int currentPage = 1;
-    private String currentCategory = "top-rated"; // Default category
+    private String currentCategory = "top-rated";
     private TextView tvPageIndicator;
 
     private Button btnPrev;
 
-    // Base URL components
     private static final String API_BASE = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/";
     private static final String API_KEY = "ChangeMeApiKey123!";
 
@@ -48,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 1. Initialize UI
         recyclerView = findViewById(R.id.recyclerViewMovies);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -58,9 +55,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnNext = findViewById(R.id.btnNext);
         tvPageIndicator = findViewById(R.id.tvPageIndicator);
 
-        // 2. Initialize Data Components
         movieList = new ArrayList<>();
-        //adapter = new MovieAdapter(this, movieList);
         adapter = new MovieAdapter(this, movieList, movieId -> {
             Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
             intent.putExtra("MOVIE_ID", movieId);
@@ -69,10 +64,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         queue = Volley.newRequestQueue(this);
 
-        // 3. Initial Load
         fetchData();
 
-        // 4. Category Listeners
         btnAll.setOnClickListener(v -> {
             currentCategory = "top-rated";
             currentPage = 1;
@@ -85,7 +78,6 @@ public class MainActivity extends AppCompatActivity {
             fetchData();
         });
 
-        // 5. Pagination Listeners
         btnNext.setOnClickListener(v -> {
             currentPage++;
             fetchData();
@@ -102,10 +94,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fetchData() {
-        // Construct the URL dynamically based on category and page
         String targetUrl = API_BASE + currentCategory + "?page=" + currentPage;
 
-        // Update UI indicator
         tvPageIndicator.setText("Page: " + currentPage);
 
         btnPrev.setEnabled(currentPage > 1);
@@ -132,7 +122,6 @@ public class MainActivity extends AppCompatActivity {
                             ));
                         }
                         adapter.notifyDataSetChanged();
-                        // Scroll back to top after page change
                         recyclerView.scrollToPosition(0);
 
                     } catch (JSONException e) {

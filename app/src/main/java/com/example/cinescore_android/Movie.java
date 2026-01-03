@@ -1,7 +1,7 @@
 package com.example.cinescore_android;
 
 public class Movie {
-    private int id; // Added ID
+    private int id;
     private String title;
     private String genre;
     private int year;
@@ -17,7 +17,6 @@ public class Movie {
         this.posterUrl = posterUrl;
     }
 
-    // Getters
     public int getId() { return id; }
     public String getTitle() { return title; }
     public String getGenre() { return genre; }

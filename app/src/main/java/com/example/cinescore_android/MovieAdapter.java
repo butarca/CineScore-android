@@ -15,16 +15,14 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
     private Context context;
     private List<Movie> movieList;
-    private OnMovieClickListener listener; // 1. Added listener variable
+    private OnMovieClickListener listener;
 
-    // 2. Updated constructor to include the listener
     public MovieAdapter(Context context, List<Movie> movieList, OnMovieClickListener listener) {
         this.context = context;
         this.movieList = movieList;
         this.listener = listener;
     }
 
-    // 3. Define the Interface
     public interface OnMovieClickListener {
         void onMovieClick(int movieId);
     }
@@ -49,7 +47,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
                 .placeholder(android.R.drawable.ic_menu_gallery)
                 .into(holder.poster);
 
-        // 4. Set the click listener on the entire card (itemView)
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onMovieClick(movie.getId());

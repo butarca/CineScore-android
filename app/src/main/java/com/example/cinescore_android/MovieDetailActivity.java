@@ -24,10 +24,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvGenre, tvYear, tvDescription;
     private RequestQueue queue;
-
     private LinearLayout commentsContainer;
 
-    // Base URL for single movie details
     private static final String API_URL = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/movies/";
     private static final String API_KEY = "ChangeMeApiKey123!";
 
@@ -38,10 +36,9 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         Button btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
-            finish(); // This simply closes the current page
+            finish();
         });
 
-        // 1. Initialize UI
         tvTitle = findViewById(R.id.tvDetailTitle);
         tvGenre = findViewById(R.id.tvDetailGenre);
         tvYear = findViewById(R.id.tvDetailYear);
@@ -50,14 +47,13 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         queue = Volley.newRequestQueue(this);
 
-        // 2. Get the Movie ID passed from MainActivity
         int movieId = getIntent().getIntExtra("MOVIE_ID", -1);
 
         if (movieId != -1) {
             fetchMovieDetails(movieId);
         } else {
             Toast.makeText(this, "Error: Invalid Movie ID", Toast.LENGTH_SHORT).show();
-            finish(); // Close activity if no ID
+            finish();
         }
     }
 
@@ -70,7 +66,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 null,
                 response -> {
                     try {
-                        // 1. Parse standard movie details
                         String title = response.optString("title", "Unknown Title");
                         String genre = response.optString("genre", "N/A");
                         int year = response.optInt("year", 0);
@@ -81,40 +76,32 @@ public class MovieDetailActivity extends AppCompatActivity {
                         tvYear.setText("Year: " + year);
                         tvDescription.setText(desc);
 
-                        // 2. Locate containers and average displays
                         LinearLayout commentsContainer = findViewById(R.id.commentsContainer);
                         TextView tvAverageScore = findViewById(R.id.tvAverageScore);
                         TextView tvReviewCount = findViewById(R.id.tvReviewCount);
 
                         commentsContainer.removeAllViews();
 
-                        // 3. Parse the comments array
                         JSONArray commentsArray = response.optJSONArray("comments");
 
                         if (commentsArray != null && commentsArray.length() > 0) {
                             android.view.LayoutInflater inflater = android.view.LayoutInflater.from(this);
-
-                            double totalScore = 0; // To track sum for average
+                            double totalScore = 0;
                             int count = commentsArray.length();
 
                             for (int i = 0; i < count; i++) {
                                 JSONObject commentObj = commentsArray.getJSONObject(i);
-
-                                // 1. Inflate the custom layout
                                 android.view.View commentView = inflater.inflate(R.layout.item_comment, commentsContainer, false);
 
-                                // 2. Find views in the inflated layout
                                 TextView tvUser = commentView.findViewById(R.id.tvCommentUser);
                                 TextView tvText = commentView.findViewById(R.id.tvCommentText);
                                 TextView tvDate = commentView.findViewById(R.id.tvCommentDate);
                                 TextView tvRating = commentView.findViewById(R.id.tvCommentRating);
 
-                                // 3. Extract data
                                 String content = commentObj.optString("text", "");
                                 String date = commentObj.optString("createdAt", "").split("T")[0];
                                 int ratingValue = commentObj.optInt("rating", 0);
 
-                                // Add to total for average calculation
                                 totalScore += ratingValue;
 
                                 String userName = "Anonymous";
@@ -122,23 +109,19 @@ public class MovieDetailActivity extends AppCompatActivity {
                                     userName = commentObj.getJSONObject("user").optString("userName", "Anonymous");
                                 }
 
-                                // 4. Set the data for the individual comment
                                 tvUser.setText(userName);
                                 tvText.setText(content);
                                 tvDate.setText(date);
                                 tvRating.setText("⭐ " + ratingValue + "/5");
 
-                                // 5. Add to container
                                 commentsContainer.addView(commentView);
                             }
 
-                            // 4. Calculate and display the average
                             double average = totalScore / count;
-                            tvAverageScore.setText(String.format("%.1f", average)); // e.g., "4.5"
+                            tvAverageScore.setText(String.format("%.1f", average));
                             tvReviewCount.setText("Based on " + count + " reviews");
 
                         } else {
-                            // Handle no comments case
                             tvAverageScore.setText("N/A");
                             tvReviewCount.setText("No reviews yet");
 
