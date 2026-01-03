@@ -81,48 +81,67 @@ public class MovieDetailActivity extends AppCompatActivity {
                         tvYear.setText("Year: " + year);
                         tvDescription.setText(desc);
 
-                        // 2. Locate the comments container and clear it (prevents duplicates)
+                        // 2. Locate containers and average displays
                         LinearLayout commentsContainer = findViewById(R.id.commentsContainer);
+                        TextView tvAverageScore = findViewById(R.id.tvAverageScore);
+                        TextView tvReviewCount = findViewById(R.id.tvReviewCount);
+
                         commentsContainer.removeAllViews();
 
                         // 3. Parse the comments array
                         JSONArray commentsArray = response.optJSONArray("comments");
-                        commentsContainer.removeAllViews();
 
                         if (commentsArray != null && commentsArray.length() > 0) {
-                            // Get the inflater service
                             android.view.LayoutInflater inflater = android.view.LayoutInflater.from(this);
 
-                            for (int i = 0; i < commentsArray.length(); i++) {
+                            double totalScore = 0; // To track sum for average
+                            int count = commentsArray.length();
+
+                            for (int i = 0; i < count; i++) {
                                 JSONObject commentObj = commentsArray.getJSONObject(i);
 
-                                // 1. Inflate the reusable comment layout
+                                // 1. Inflate the custom layout
                                 android.view.View commentView = inflater.inflate(R.layout.item_comment, commentsContainer, false);
 
-                                // 2. Find the views inside that inflated layout
+                                // 2. Find views in the inflated layout
                                 TextView tvUser = commentView.findViewById(R.id.tvCommentUser);
                                 TextView tvText = commentView.findViewById(R.id.tvCommentText);
                                 TextView tvDate = commentView.findViewById(R.id.tvCommentDate);
+                                TextView tvRating = commentView.findViewById(R.id.tvCommentRating);
 
-                                // 3. Extract data from JSON
+                                // 3. Extract data
                                 String content = commentObj.optString("text", "");
-                                String date = commentObj.optString("createdAt", "").split("T")[0]; // Just get the date part
+                                String date = commentObj.optString("createdAt", "").split("T")[0];
+                                int ratingValue = commentObj.optInt("rating", 0);
+
+                                // Add to total for average calculation
+                                totalScore += ratingValue;
 
                                 String userName = "Anonymous";
                                 if (commentObj.has("user") && !commentObj.isNull("user")) {
                                     userName = commentObj.getJSONObject("user").optString("userName", "Anonymous");
                                 }
 
-                                // 4. Set the data
+                                // 4. Set the data for the individual comment
                                 tvUser.setText(userName);
                                 tvText.setText(content);
                                 tvDate.setText(date);
+                                tvRating.setText("⭐ " + ratingValue + "/5");
 
-                                // 5. Add the complete view to the container
+                                // 5. Add to container
                                 commentsContainer.addView(commentView);
                             }
+
+                            // 4. Calculate and display the average
+                            double average = totalScore / count;
+                            tvAverageScore.setText(String.format("%.1f", average)); // e.g., "4.5"
+                            tvReviewCount.setText("Based on " + count + " reviews");
+
                         } else {
                             // Handle no comments case
+                            tvAverageScore.setText("N/A");
+                            tvReviewCount.setText("No reviews yet");
+
                             TextView noComments = new TextView(this);
                             noComments.setText("No comments yet.");
                             commentsContainer.addView(noComments);
