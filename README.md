@@ -24,4 +24,4 @@ curl -X 'GET' \
 
 ## Slike
 
-![main screen](images/img1.jpg) ![movie view](images/img2.jpg)
+<img src="images/img1.jpg" width="45%"> <img src="images/img2.jpg" width="45%">
