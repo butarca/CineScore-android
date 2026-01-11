@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String API_BASE = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/tmdb/";
     private static final String API_KEY = "ChangeMeApiKey123!";
 
+    // Ta metoda se izvede ob ustvarjanju aktivnosti. Inicializira uporabniški vmesnik (gumbe, seznam), nastavi poslušalce klikov in sproži začetno nalaganje podatkov.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    // Ta metoda sestavi URL naslov, izvede asinhroni omrežni klic (GET request) za pridobitev filmov, razčleni JSON odgovor in posodobi seznam v vmesniku.
     private void fetchData() {
         String targetUrl = API_BASE + currentCategory + "?page=" + currentPage;
 
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
                 },
                 error -> Toast.makeText(MainActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show()
         ) {
+
+            // Ta metoda doda glave (headers) k HTTP zahtevku, specifično API ključ, ki je potreben za avtentikacijo na strežniku.
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
