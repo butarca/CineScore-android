@@ -29,6 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity {
     private static final String API_URL = "https://cinescore-webapp-arhuerfndwewhte9.germanywestcentral-01.azurewebsites.net/api/v1/movies/";
     private static final String API_KEY = "ChangeMeApiKey123!";
 
+    // Metoda se pokliče ob ustvarjanju aktivnosti; nastavi uporabniški vmesnik, poveže gumbe, inicializira vrsto za omrežne zahtevke in prebere ID filma iz namena (Intent).
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +58,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         }
     }
 
+    // Metoda pridobi podrobne podatke o filmu in komentarje s strežnika, izračuna povprečno oceno ter dinamično doda poglede za komentarje v vsebnik na zaslonu.
     private void fetchMovieDetails(int id) {
         String url = API_URL + id;
 
@@ -137,6 +139,7 @@ public class MovieDetailActivity extends AppCompatActivity {
                 },
                 error -> Toast.makeText(this, "Network Error: " + error.getMessage(), Toast.LENGTH_SHORT).show()
         ) {
+            // Metoda pregazi privzete glave zahtevka in doda avtentikacijski API ključ, ki je potreben za dostop do zalednega sistema.
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();

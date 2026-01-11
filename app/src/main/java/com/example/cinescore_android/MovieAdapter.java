@@ -17,16 +17,19 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     private List<Movie> movieList;
     private OnMovieClickListener listener;
 
+    // Konstruktor razreda: Inicializira adapter s potrebnim kontekstom, seznamom podatkov o filmih in poslušalcem za klike.
     public MovieAdapter(Context context, List<Movie> movieList, OnMovieClickListener listener) {
         this.context = context;
         this.movieList = movieList;
         this.listener = listener;
     }
 
+    // Vmesnik (Interface), ki definira metodo, ki se bo poklicala, ko uporabnik klikne na določen film v seznamu.
     public interface OnMovieClickListener {
         void onMovieClick(int movieId);
     }
 
+    // Ta metoda ustvari nov "pogled" (View) za posamezno vrstico v seznamu tako, da "napihne" (inflate) XML postavitev (item_movie.xml).
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -34,6 +37,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         return new MovieViewHolder(view);
     }
 
+    // Ta metoda poveže podatke posameznega filma z UI elementi v vrstici (nastavi naslov, opis in naloži sliko s knjižnico Glide) ter nastavi odziv na klik.
     @Override
     public void onBindViewHolder(@NonNull MovieViewHolder holder, int position) {
         Movie movie = movieList.get(position);
@@ -54,11 +58,13 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         });
     }
 
+    // Vrne skupno število filmov v seznamu, kar pove RecyclerView-ju, koliko vrstic mora izrisati.
     @Override
     public int getItemCount() {
         return movieList.size();
     }
 
+    // Notranji razred, ki hrani reference na UI komponente (TextView, ImageView) posamezne vrstice, da jih ni treba vedno znova iskati (caching).
     public static class MovieViewHolder extends RecyclerView.ViewHolder {
         TextView title, yearGenre, description;
         ImageView poster;
